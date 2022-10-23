@@ -1,0 +1,36 @@
+version: '3'
+services:
+  mysql:
+    build:
+      context: .
+      dockerfile: docker/mysql/Dockerfile
+      args:
+        - HOST_GID_ARG=$GROUPID
+        - HOST_UID_ARG=$USERID
+    image: zeitfrucht-mysql
+    ports:
+      - 13306:3306
+#    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: '@zeitfruchtig@'
+    volumes:
+      -  ./docker/mysql/volume:/var/lib/mysql
+    user: $USERID:$GROUPID
+  app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+      args:
+        - HOST_GID_ARG=$GROUPID
+        - HOST_UID_ARG=$USERID
+    image: zeitfrucht-php
+    ports:
+      - 8888:80
+    volumes:
+      - .:/srv/api
+    links:
+      - mysql
+    #environment:
+      #DB_HOST: 'mysql'
+      #DB_USERNAME: 'root'
+      #DB_PASSWORD: '@zeitfruchtig@'
